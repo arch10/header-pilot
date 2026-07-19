@@ -7,7 +7,7 @@ interface Props {
   rule: HeaderRule;
   onUpdate: (patch: Partial<HeaderRule>) => void;
   onDelete: () => void;
-  onAddPattern: () => void;
+  onAddPattern: (value?: string) => void;
   onUpdatePattern: (index: number, patch: Partial<UrlPattern>) => void;
   onDeletePattern: (index: number) => void;
 }
@@ -65,14 +65,6 @@ export function RuleRow({
           onChange={(e) => onUpdate({ enabled: e.target.checked })}
           title="Enable this rule"
         />
-        <button
-          type="button"
-          className={`target-badge target-badge-${rule.target}`}
-          onClick={() => onUpdate({ target: rule.target === 'request' ? 'response' : 'request' })}
-          title="Toggle request/response"
-        >
-          {rule.target === 'request' ? 'REQ' : 'RES'}
-        </button>
         <select
           className="operation-select"
           value={rule.operation}

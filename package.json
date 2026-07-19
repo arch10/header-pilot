@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "icons": "node scripts/generate-icons.mjs",
     "lint": "biome lint .",
     "format": "biome format --write .",
     "check": "biome check --write .",
@@ -24,6 +25,7 @@
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.3",
+    "sharp": "^0.35.3",
     "typescript": "~6.0.2",
     "vite": "^8.1.1"
   }

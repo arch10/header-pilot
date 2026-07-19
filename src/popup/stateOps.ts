@@ -53,10 +53,10 @@ export function deleteRule(state: AppState, ruleId: string): AppState {
   }));
 }
 
-export function addPattern(state: AppState, ruleId: string): AppState {
+export function addPattern(state: AppState, ruleId: string, value = ''): AppState {
   return updateRuleWith(state, ruleId, (r) => ({
     ...r,
-    patterns: [...(r.patterns ?? []), { value: '', isRegex: false }],
+    patterns: [...(r.patterns ?? []), { value, isRegex: false }],
   }));
 }
 

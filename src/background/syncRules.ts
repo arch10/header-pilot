@@ -21,7 +21,8 @@ export function computeEffectiveRules(state: AppState): HeaderRule[] {
   if (!state.globalEnabled) return [];
   const activeProfile = state.profiles.find((p) => p.id === state.activeProfileId);
   if (!activeProfile) return [];
-  return activeProfile.rules.filter((r) => r.enabled);
+  // Response-header modification is disabled for now — inert until re-enabled.
+  return activeProfile.rules.filter((r) => r.enabled && r.target === 'request');
 }
 
 function buildConditionBase(): Pick<chrome.declarativeNetRequest.RuleCondition, 'resourceTypes'> {
@@ -80,7 +81,17 @@ export interface SyncResult {
 export async function syncRules(state: AppState): Promise<SyncResult> {
   const effective = computeEffectiveRules(state);
 
-  let nextId = state.nextDnrRuleId;
+  // Trust DNR, not our bookkeeping. If storage got cleared, the extension was
+  // reloaded, or a previous sync half-failed, `state.dnrRuleMap` won't cover
+  // every existing DNR rule — and any surviving rule whose ID collides with a
+  // freshly-allocated one throws "Rule with id N does not have a unique ID".
+  const existingRules = await chrome.declarativeNetRequest.getDynamicRules();
+  const removeRuleIds = existingRules.map((r) => r.id);
+  const highestExistingId = removeRuleIds.reduce((max, id) => Math.max(max, id), 0);
+
+  // Allocate above both our own counter and any observed live IDs, so if a
+  // remove-then-add gets reordered we still don't collide.
+  let nextId = Math.max(state.nextDnrRuleId, highestExistingId + 1);
   const dnrRuleMap: Record<string, number[]> = {};
   const addRules: chrome.declarativeNetRequest.Rule[] = [];
 
@@ -96,12 +107,10 @@ export async function syncRules(state: AppState): Promise<SyncResult> {
     }
   }
 
-  const currentIds = Object.values(state.dnrRuleMap).flat();
-
   let lastSyncError: string | null = null;
   try {
     await chrome.declarativeNetRequest.updateDynamicRules({
-      removeRuleIds: currentIds,
+      removeRuleIds,
       addRules,
     });
   } catch (err) {

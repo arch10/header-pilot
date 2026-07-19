@@ -1,9 +1,20 @@
 import { ensureSeeded, getState, subscribe } from '../storage';
 import type { AppState } from '../types';
-import { computeEffectiveRules, resyncFromStorage } from './syncRules';
+import { resyncFromStorage } from './syncRules';
 
-const BADGE_ON_COLOR = '#2e7d32';
-const BADGE_OFF_COLOR = '#9aa0a6';
+const ICONS_ENABLED = {
+  16: 'public/icons/icon-16.png',
+  32: 'public/icons/icon-32.png',
+  48: 'public/icons/icon-48.png',
+  128: 'public/icons/icon-128.png',
+};
+
+const ICONS_DISABLED = {
+  16: 'public/icons/icon-16-disabled.png',
+  32: 'public/icons/icon-32-disabled.png',
+  48: 'public/icons/icon-48-disabled.png',
+  128: 'public/icons/icon-128-disabled.png',
+};
 
 /** Signature of the fields that actually affect which DNR rules should exist. */
 function rulesSignature(state: AppState): string {
@@ -14,21 +25,14 @@ function rulesSignature(state: AppState): string {
   });
 }
 
-async function updateBadge(state: AppState): Promise<void> {
-  if (!state.globalEnabled) {
-    await chrome.action.setBadgeText({ text: 'OFF' });
-    await chrome.action.setBadgeBackgroundColor({ color: BADGE_OFF_COLOR });
-    return;
-  }
-  const count = computeEffectiveRules(state).length;
-  await chrome.action.setBadgeText({ text: count > 0 ? String(count) : '' });
-  await chrome.action.setBadgeBackgroundColor({ color: BADGE_ON_COLOR });
+async function updateToolbarIcon(state: AppState): Promise<void> {
+  await chrome.action.setIcon({ path: state.globalEnabled ? ICONS_ENABLED : ICONS_DISABLED });
 }
 
 async function runSync(): Promise<void> {
   const state = await getState();
   const synced = await resyncFromStorage(state);
-  await updateBadge(synced);
+  await updateToolbarIcon(synced);
 }
 
 chrome.runtime.onInstalled.addListener(() => {
@@ -47,7 +51,7 @@ subscribe((newState, oldState) => {
   // re-fires onChanged. If only those bookkeeping fields changed (not the rules
   // that actually matter), skip re-syncing to avoid looping forever.
   if (oldState && rulesSignature(newState) === rulesSignature(oldState)) {
-    void updateBadge(newState);
+    void updateToolbarIcon(newState);
     return;
   }
   void runSync();

@@ -10,12 +10,12 @@
   --text-muted: #6b7080;
   --text-faint: #9aa0af;
 
-  --accent: #2563eb;
-  --accent-soft: rgba(37, 99, 235, 0.1);
+  --accent: #1d4ed8;
+  --accent-soft: rgba(29, 78, 216, 0.1);
   --accent-contrast: #ffffff;
 
-  --req: #2563eb;
-  --req-soft: rgba(37, 99, 235, 0.12);
+  --req: #1d4ed8;
+  --req-soft: rgba(29, 78, 216, 0.12);
   --res: #7c3aed;
   --res-soft: rgba(124, 58, 237, 0.12);
 
@@ -48,12 +48,12 @@
     --text-muted: #a2a5b3;
     --text-faint: #75798a;
 
-    --accent: #3b82f6;
-    --accent-soft: rgba(59, 130, 246, 0.16);
+    --accent: #2563eb;
+    --accent-soft: rgba(37, 99, 235, 0.16);
     --accent-contrast: #ffffff;
 
-    --req: #60a5fa;
-    --req-soft: rgba(96, 165, 250, 0.16);
+    --req: #3b82f6;
+    --req-soft: rgba(59, 130, 246, 0.16);
     --res: #a78bfa;
     --res-soft: rgba(167, 139, 250, 0.16);
 
@@ -64,45 +64,15 @@
   }
 }
 
-@keyframes fade-slide-in {
-  from {
-    opacity: 0;
-    transform: translateY(-4px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes pulse {
-  0%,
-  100% {
-    opacity: 0.4;
-  }
-  50% {
-    opacity: 1;
-  }
-}
-
 * {
   box-sizing: border-box;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .rule-row,
-  .pattern-row,
-  .error-banner,
-  .empty-state {
-    animation: fade-slide-in 180ms var(--ease);
-  }
-
-  .popup-loading {
-    animation: pulse 1.4s ease-in-out infinite;
-  }
-}
-
+html,
 body {
+  /* Pin the popup window to its final width so the browser doesn't first paint
+     at a shrink-to-fit size (empty root) before React fills the tree. */
+  width: 380px;
   margin: 0;
   background: var(--bg);
   color: var(--text);
@@ -138,17 +108,20 @@ input[type="radio"] {
   border-radius: 999px;
 }
 
-.popup-loading {
-  padding: 32px;
-  text-align: center;
-  color: var(--text-muted);
-}
-
 .popup-body {
   padding: 12px;
   display: flex;
   flex-direction: column;
   gap: 10px;
+  transition:
+    filter var(--ease),
+    opacity var(--ease);
+}
+
+.popup-body-disabled {
+  filter: grayscale(1);
+  opacity: 0.55;
+  pointer-events: none;
 }
 
 /* ---------- Topbar / brand ---------- */
@@ -494,7 +467,7 @@ input[type="radio"] {
 .header-value-input,
 .pattern-input {
   flex: 1;
-  min-width: 70px;
+  min-width: 140px;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   background: var(--bg);
@@ -622,6 +595,12 @@ input[type="radio"] {
 }
 
 /* ---------- Add buttons ---------- */
+
+.pattern-editor-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
 
 .add-pattern-btn,
 .add-rule-btn {
