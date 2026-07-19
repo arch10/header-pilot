@@ -1,4 +1,4 @@
-import { FiSliders } from 'react-icons/fi';
+import { Logo } from './Logo';
 
 interface Props {
   enabled: boolean;
@@ -10,7 +10,7 @@ export function GlobalSwitch({ enabled, onToggle }: Props) {
     <div className="topbar">
       <div className="brand">
         <span className="brand-icon">
-          <FiSliders />
+          <Logo />
         </span>
         <div className="brand-text">
           <span className="brand-title">Header Pilot</span>
