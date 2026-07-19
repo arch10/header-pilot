@@ -4,7 +4,7 @@ Guidance for AI coding agents working in this repo.
 
 ## What this is
 
-Header Pilot is a ModHeader-style Chrome extension (Manifest V3, Vite +
+HeaderPilot is a ModHeader-style Chrome extension (Manifest V3, Vite +
 `@crxjs/vite-plugin` + React/TypeScript) that adds, removes, and modifies
 request/response headers via `chrome.declarativeNetRequest`. Global on/off
 switch, per-rule enable checkboxes, URL scoping (all URLs or RE2 regex),

@@ -19,7 +19,7 @@ const disabledIcons = [
 
 export default defineManifest({
   manifest_version: 3,
-  name: 'Header Pilot',
+  name: 'HeaderPilot',
   description: 'Add, remove, and modify request and response headers.',
   version,
   icons,

@@ -13,7 +13,7 @@ export function GlobalSwitch({ enabled, onToggle }: Props) {
           <Logo />
         </span>
         <div className="brand-text">
-          <span className="brand-title">Header Pilot</span>
+          <span className="brand-title">HeaderPilot</span>
           <span className={`brand-status ${enabled ? 'is-on' : 'is-off'}`}>
             {enabled ? 'Active' : 'Paused'}
           </span>

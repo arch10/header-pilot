@@ -1,4 +1,6 @@
-# Header Pilot
+<img src="public/icons/icon-128.png" alt="HeaderPilot logo" width="64" height="64" />
+
+# HeaderPilot
 
 A ModHeader-style Chrome extension (Manifest V3) for adding, removing, and
 modifying request and response headers, with a global on/off switch,
