@@ -1,0 +1,894 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>HeaderPilot — you're cleared to rewrite every header</title>
+<meta name="description" content="HeaderPilot is a Chrome extension for adding, removing, and modifying HTTP request and response headers, right in your browser." />
+<link rel="icon" href="assets/icon-32.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --ink-950: #0a0b11;
+    --ink-900: #12141d;
+    --ink-850: #171923;
+    --ink-800: #1c1f2b;
+    --line: #262a38;
+    --line-soft: #1d2029;
+    --blue-500: #3b82f6;
+    --blue-400: #60a5fa;
+    --blue-700: #1d4ed8;
+    --violet-400: #a78bfa;
+    --violet-300: #c4b5fd;
+    --green-400: #34d399;
+    --white: #f4f5fa;
+    --fog: #8b90a3;
+    --fog-dim: #565b6d;
+    --display: "Space Grotesk", "Inter", sans-serif;
+    --body: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, monospace;
+  }
+
+  * { box-sizing: border-box; }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    margin: 0;
+    background: var(--ink-950);
+    color: var(--white);
+    font-family: var(--body);
+    font-size: 16px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-image:
+      linear-gradient(rgba(59, 130, 246, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(59, 130, 246, 0.05) 1px, transparent 1px);
+    background-size: 48px 48px;
+    -webkit-mask-image: radial-gradient(ellipse 80% 55% at 50% 0%, #000 0%, transparent 70%);
+    mask-image: radial-gradient(ellipse 80% 55% at 50% 0%, #000 0%, transparent 70%);
+  }
+
+  a { color: inherit; }
+
+  img { max-width: 100%; display: block; }
+
+  .wrap {
+    position: relative;
+    z-index: 1;
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--blue-400);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
+  /* ---------- nav ---------- */
+
+  .nav {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    backdrop-filter: blur(10px);
+    background: rgba(10, 11, 17, 0.72);
+    border-bottom: 1px solid var(--line-soft);
+  }
+
+  .nav-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 24px;
+    max-width: 1080px;
+    margin: 0 auto;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: 16px;
+    letter-spacing: -0.01em;
+    text-decoration: none;
+  }
+
+  .brand img { width: 26px; height: 26px; border-radius: 7px; }
+
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    font-size: 14px;
+    color: var(--fog);
+  }
+
+  .nav-links a { text-decoration: none; transition: color 150ms; }
+  .nav-links a:hover { color: var(--white); }
+
+  .nav-cta {
+    color: var(--white) !important;
+    background: var(--ink-800);
+    border: 1px solid var(--line);
+    padding: 7px 14px;
+    border-radius: 7px;
+    font-weight: 500;
+    transition: border-color 150ms, background 150ms;
+  }
+  .nav-cta:hover { border-color: var(--blue-500); background: var(--ink-850); }
+
+  /* ---------- hero ---------- */
+
+  .hero {
+    padding: 96px 0 40px;
+    text-align: center;
+  }
+
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    color: var(--blue-400);
+    background: rgba(59, 130, 246, 0.08);
+    border: 1px solid rgba(59, 130, 246, 0.25);
+    padding: 6px 12px;
+    border-radius: 100px;
+    margin-bottom: 28px;
+  }
+
+  .eyebrow .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--green-400);
+    box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.2);
+  }
+
+  .hero h1 {
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: clamp(2.4rem, 5.4vw, 4rem);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    margin: 0 0 22px;
+  }
+
+  .hero h1 .accent {
+    background: linear-gradient(100deg, var(--blue-400), var(--violet-300));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .hero p.lede {
+    font-size: 1.15rem;
+    color: var(--fog);
+    max-width: 560px;
+    margin: 0 auto 36px;
+  }
+
+  .hero p.lede code {
+    font-family: var(--mono);
+    font-size: 0.9em;
+    color: var(--blue-300, #93c5fd);
+  }
+
+  .cta-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-bottom: 18px;
+  }
+
+  .btn {
+    font-family: var(--body);
+    font-size: 15px;
+    font-weight: 600;
+    padding: 12px 22px;
+    border-radius: 9px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: transform 150ms, box-shadow 150ms, border-color 150ms, background 150ms;
+  }
+
+  .btn-primary {
+    background: linear-gradient(100deg, var(--blue-500), var(--blue-700));
+    color: #fff;
+    box-shadow: 0 8px 24px -8px rgba(37, 99, 235, 0.6);
+  }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 10px 28px -6px rgba(37, 99, 235, 0.75); }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--white);
+    border: 1px solid var(--line);
+  }
+  .btn-ghost:hover { border-color: var(--fog-dim); background: var(--ink-850); }
+
+  .hero-note {
+    font-size: 13px;
+    color: var(--fog-dim);
+  }
+  .hero-note a { color: var(--fog); text-decoration: underline; text-decoration-color: var(--line); text-underline-offset: 3px; }
+  .hero-note a:hover { color: var(--white); }
+
+  /* ---------- flight strip (signature element) ---------- */
+
+  .strip {
+    position: relative;
+    max-width: 760px;
+    margin: 72px auto 0;
+    padding: 36px 28px 28px;
+    background: linear-gradient(180deg, var(--ink-900), var(--ink-850));
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    overflow: hidden;
+  }
+
+  .strip::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 60% 100% at 50% 0%, rgba(59, 130, 246, 0.12), transparent 70%);
+    pointer-events: none;
+  }
+
+  .strip-label {
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    color: var(--fog-dim);
+    margin-bottom: 22px;
+    text-transform: uppercase;
+  }
+
+  .lanes {
+    position: relative;
+    display: grid;
+    grid-template-columns: 58px 1fr;
+    grid-template-rows: 46px 46px;
+    row-gap: 20px;
+  }
+
+  .lane { display: contents; }
+
+  .lane-label {
+    align-self: center;
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: 0.04em;
+    color: var(--fog-dim);
+    text-transform: uppercase;
+  }
+  .lane-req .lane-label { grid-column: 1; grid-row: 1; }
+  .lane-res .lane-label { grid-column: 1; grid-row: 2; text-align: right; }
+
+  .track {
+    position: relative;
+    height: 46px;
+    overflow: visible;
+  }
+  .lane-req .track { grid-column: 2; grid-row: 1; }
+  .lane-res .track { grid-column: 2; grid-row: 2; }
+
+  .rail {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    height: 1px;
+    background: repeating-linear-gradient(90deg, var(--line) 0 6px, transparent 6px 12px);
+  }
+
+  .packet {
+    position: absolute;
+    top: 50%;
+    width: 9px;
+    height: 9px;
+    margin-top: -4.5px;
+    border-radius: 2px;
+    left: -3%;
+  }
+
+  .lane-req .packet { background: var(--blue-500); box-shadow: 0 0 10px rgba(59, 130, 246, 0.7); animation: flyRight 7s linear infinite; }
+  .lane-res .packet { background: var(--violet-400); box-shadow: 0 0 10px rgba(167, 139, 250, 0.65); animation: flyLeft 7s linear infinite; }
+
+  .packet .tag {
+    position: absolute;
+    top: -26px;
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    font-family: var(--mono);
+    font-size: 10.5px;
+    padding: 3px 7px;
+    border-radius: 5px;
+    background: var(--ink-800);
+    border: 1px solid var(--line);
+    opacity: 0;
+  }
+  .lane-req .packet .tag { color: var(--blue-400); animation: tagPulse 7s linear infinite; }
+  .lane-res .packet .tag { color: var(--violet-300); animation: tagPulse 7s linear infinite; }
+
+  .p2 { animation-delay: -3.5s !important; }
+
+  @keyframes flyRight {
+    0% { left: -3%; opacity: 0; }
+    4% { opacity: 1; }
+    96% { opacity: 1; }
+    100% { left: 100%; opacity: 0; }
+  }
+  @keyframes flyLeft {
+    0% { left: 100%; opacity: 0; }
+    4% { opacity: 1; }
+    96% { opacity: 1; }
+    100% { left: -3%; opacity: 0; }
+  }
+  @keyframes tagPulse {
+    0%, 40% { opacity: 0; transform: translate(-50%, 4px); }
+    47%, 53% { opacity: 1; transform: translate(-50%, 0); }
+    60%, 100% { opacity: 0; transform: translate(-50%, -4px); }
+  }
+
+  .tower-wrap {
+    grid-column: 2;
+    grid-row: 1 / 3;
+    position: relative;
+    pointer-events: none;
+  }
+
+  .tower {
+    position: absolute;
+    left: 50%;
+    top: -6px;
+    bottom: -6px;
+    width: 1px;
+    background: linear-gradient(180deg, transparent, var(--line-soft) 15%, var(--line-soft) 85%, transparent);
+  }
+
+  .beacon {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 14px;
+    height: 14px;
+    border-radius: 4px;
+    background: var(--ink-950);
+    border: 1px solid var(--blue-400);
+    transform: translate(-50%, -50%) rotate(45deg);
+  }
+  .beacon::before {
+    content: "";
+    position: absolute;
+    inset: -8px;
+    border-radius: 50%;
+    border: 1px solid rgba(59, 130, 246, 0.35);
+    animation: ping 2.4s cubic-bezier(0.2, 0.6, 0.4, 1) infinite;
+  }
+
+  @keyframes ping {
+    0% { transform: scale(0.6); opacity: 0.8; }
+    100% { transform: scale(2.1); opacity: 0; }
+  }
+
+  .strip-caption {
+    text-align: center;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--fog-dim);
+    margin-top: 18px;
+    letter-spacing: 0.03em;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .packet, .packet .tag, .beacon::before { animation: none !important; }
+    .lane-req .packet { left: 30%; opacity: 1; }
+    .lane-res .packet { left: 68%; opacity: 1; }
+    .lane-req .p2, .lane-res .p2 { display: none; }
+    .packet .tag { opacity: 1; transform: translateX(-50%); }
+  }
+
+  /* ---------- section shared ---------- */
+
+  section { position: relative; z-index: 1; }
+
+  .section-head {
+    max-width: 620px;
+    margin: 0 auto 48px;
+    text-align: center;
+  }
+
+  .section-eyebrow {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    color: var(--violet-400);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  .section-head h2 {
+    font-family: var(--display);
+    font-size: clamp(1.6rem, 3vw, 2.1rem);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    margin: 0 0 12px;
+  }
+
+  .section-head p {
+    color: var(--fog);
+    margin: 0;
+  }
+
+  /* ---------- flight log ---------- */
+
+  .log {
+    padding: 120px 0 20px;
+  }
+
+  .log-entries {
+    max-width: 680px;
+    margin: 0 auto;
+    border-left: 1px solid var(--line);
+    padding-left: 0;
+  }
+
+  .log-entry {
+    position: relative;
+    display: grid;
+    grid-template-columns: 96px 1fr;
+    gap: 20px;
+    padding: 22px 0 22px 28px;
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .log-entry:last-child { border-bottom: none; }
+
+  .log-entry::before {
+    content: "";
+    position: absolute;
+    left: -5px;
+    top: 28px;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--ink-950);
+    border: 1px solid var(--blue-500);
+  }
+
+  .log-time {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--blue-400);
+    padding-top: 2px;
+  }
+
+  .log-body h3 {
+    font-family: var(--body);
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0 0 6px;
+  }
+
+  .log-body p {
+    margin: 0;
+    color: var(--fog);
+    font-size: 14.5px;
+  }
+
+  .log-body code {
+    font-family: var(--mono);
+    font-size: 0.88em;
+    background: var(--ink-800);
+    border: 1px solid var(--line);
+    padding: 1px 6px;
+    border-radius: 4px;
+    color: var(--violet-300);
+  }
+
+  /* ---------- instrument panel ---------- */
+
+  .panel {
+    padding: 120px 0 20px;
+  }
+
+  .panel-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+
+  .panel-card {
+    background: var(--ink-900);
+    padding: 28px 22px;
+  }
+
+  .panel-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 18px;
+    background: var(--ink-800);
+    border: 1px solid var(--line);
+  }
+
+  .panel-card h3 {
+    font-family: var(--body);
+    font-size: 15px;
+    font-weight: 600;
+    margin: 0 0 8px;
+  }
+
+  .panel-card p {
+    font-size: 13.5px;
+    color: var(--fog);
+    margin: 0;
+  }
+
+  /* ---------- cockpit view (screenshots) ---------- */
+
+  .cockpit {
+    padding: 120px 0 20px;
+  }
+
+  .cockpit-grid {
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+    gap: 22px;
+    align-items: center;
+  }
+
+  .cockpit-frame {
+    position: relative;
+    background: var(--ink-900);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 10px;
+  }
+
+  .cockpit-frame img {
+    border-radius: 8px;
+    width: 100%;
+  }
+
+  .cockpit-dots { display: flex; gap: 6px; padding: 4px 6px 12px; }
+  .cockpit-dots span { width: 8px; height: 8px; border-radius: 50%; background: var(--line); }
+
+  .cockpit-copy h2 {
+    font-family: var(--display);
+    font-size: clamp(1.6rem, 3vw, 2.1rem);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    margin: 0 0 16px;
+  }
+
+  .cockpit-copy p {
+    color: var(--fog);
+    margin: 0 0 16px;
+  }
+
+  .cockpit-copy ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 10px;
+  }
+
+  .cockpit-copy li {
+    display: flex;
+    gap: 10px;
+    font-size: 14.5px;
+    color: var(--white);
+  }
+
+  .cockpit-copy li::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    margin-top: 7px;
+    border-radius: 1px;
+    background: var(--green-400);
+    flex-shrink: 0;
+  }
+
+  /* ---------- final cta ---------- */
+
+  .final-cta {
+    padding: 130px 0 100px;
+    text-align: center;
+  }
+
+  .final-cta h2 {
+    font-family: var(--display);
+    font-size: clamp(2rem, 4vw, 2.8rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin: 0 0 16px;
+  }
+
+  .final-cta p {
+    color: var(--fog);
+    max-width: 460px;
+    margin: 0 auto 32px;
+  }
+
+  /* ---------- footer ---------- */
+
+  footer {
+    border-top: 1px solid var(--line-soft);
+    padding: 32px 0 40px;
+  }
+
+  .footer-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    font-size: 13px;
+    color: var(--fog-dim);
+  }
+
+  .footer-links {
+    display: flex;
+    gap: 22px;
+  }
+
+  .footer-links a {
+    text-decoration: none;
+    color: var(--fog);
+  }
+  .footer-links a:hover { color: var(--white); }
+
+  .footer-tag {
+    font-family: var(--mono);
+    font-size: 12px;
+  }
+
+  @media (max-width: 760px) {
+    .panel-grid { grid-template-columns: repeat(2, 1fr); }
+    .cockpit-grid { grid-template-columns: 1fr; }
+    .nav-links { display: none; }
+    .log-entry { grid-template-columns: 1fr; gap: 6px; }
+    .strip { margin-top: 48px; padding: 28px 16px 22px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a class="brand" href="#top">
+      <img src="assets/icon-128.png" alt="" />
+      HeaderPilot
+    </a>
+    <div class="nav-links">
+      <a href="#how">Flight log</a>
+      <a href="#features">Instruments</a>
+      <a href="#cockpit">Cockpit view</a>
+      <a href="privacy.html">Privacy</a>
+      <a class="nav-cta" href="https://github.com/arch10/header-pilot/releases/latest">Get the build</a>
+    </div>
+  </div>
+</nav>
+
+<main id="top">
+
+  <section class="hero">
+    <div class="wrap">
+      <span class="eyebrow"><span class="dot"></span> MANIFEST V3 · OPEN SOURCE · RUNS ENTIRELY LOCAL</span>
+
+      <h1>You're cleared to rewrite<br />every <span class="accent">header</span> in flight.</h1>
+
+      <p class="lede">
+        HeaderPilot intercepts requests and responses right inside Chrome —
+        <code>set</code>, <code>remove</code>, or <code>append</code> any
+        header before it ever leaves your browser. No proxy, no config file.
+      </p>
+
+      <div class="cta-row">
+        <a class="btn btn-primary" href="https://github.com/arch10/header-pilot/releases/latest">
+          ↓ Get the latest build
+        </a>
+        <a class="btn btn-ghost" href="https://github.com/arch10/header-pilot">
+          View source
+        </a>
+      </div>
+      <p class="hero-note">Chrome Web Store listing in review — grab the signed <code>.crx</code> or <code>.zip</code> from <a href="https://github.com/arch10/header-pilot/releases/latest">the latest release</a> for now.</p>
+
+      <div class="strip" aria-hidden="true">
+        <div class="strip-label">
+          <span>your browser</span>
+          <span>the network</span>
+        </div>
+        <div class="lanes">
+          <div class="lane lane-req">
+            <span class="lane-label">req →</span>
+            <div class="track">
+              <div class="rail"></div>
+              <div class="packet p1"><span class="tag">set x-auth-token</span></div>
+              <div class="packet p2"><span class="tag">append cache-control</span></div>
+            </div>
+          </div>
+          <div class="lane lane-res">
+            <span class="lane-label">← res</span>
+            <div class="track">
+              <div class="rail"></div>
+              <div class="packet p1"><span class="tag">remove server</span></div>
+              <div class="packet p2"><span class="tag">remove x-powered-by</span></div>
+            </div>
+          </div>
+          <div class="tower-wrap">
+            <div class="tower"></div>
+            <div class="beacon"></div>
+          </div>
+        </div>
+        <p class="strip-caption">every packet clears the tower — outbound and inbound, tagged live via declarativeNetRequest</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="log" id="how">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="section-eyebrow">Flight log</div>
+        <h2>Four steps to takeoff</h2>
+        <p>No account, no server, no build step. Load it and start flying.</p>
+      </div>
+      <div class="log-entries">
+        <div class="log-entry">
+          <div class="log-time">T&minus;00:00</div>
+          <div class="log-body">
+            <h3>Install &amp; pin it</h3>
+            <p>Load the build unpacked, or drop in the signed <code>.crx</code>. Pin the rocket to your toolbar.</p>
+          </div>
+        </div>
+        <div class="log-entry">
+          <div class="log-time">T&minus;00:15</div>
+          <div class="log-body">
+            <h3>Write a rule</h3>
+            <p><code>set</code>, <code>remove</code>, or <code>append</code> any request or response header, with a value you control.</p>
+          </div>
+        </div>
+        <div class="log-entry">
+          <div class="log-time">T&minus;00:30</div>
+          <div class="log-body">
+            <h3>Scope the airspace</h3>
+            <p>Apply it everywhere, or lock it down to a single URL pattern with regex.</p>
+          </div>
+        </div>
+        <div class="log-entry">
+          <div class="log-time">T&minus;00:45</div>
+          <div class="log-body">
+            <h3>Flip the switch</h3>
+            <p>Toggle rules globally or one at a time. Changes apply instantly — no reload.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel" id="features">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="section-eyebrow">Instrument panel</div>
+        <h2>Everything a header needs</h2>
+        <p>Built to feel like a cockpit, not a config file.</p>
+      </div>
+      <div class="panel-grid">
+        <div class="panel-card">
+          <div class="panel-icon">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="#3b82f6" stroke-width="1.5"/><circle cx="8" cy="8" r="2" fill="#3b82f6"/></svg>
+          </div>
+          <h3>Global switch</h3>
+          <p>Kill every rule at once without losing your setup. One toggle, full stop.</p>
+        </div>
+        <div class="panel-card">
+          <div class="panel-icon">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2" y="3" width="12" height="3" rx="1" stroke="#a78bfa" stroke-width="1.5"/><rect x="2" y="10" width="12" height="3" rx="1" stroke="#a78bfa" stroke-width="1.5" fill="#a78bfa" fill-opacity="0.25"/></svg>
+          </div>
+          <h3>Per-rule toggles</h3>
+          <p>Flip individual headers on or off without touching the rest of the config.</p>
+        </div>
+        <div class="panel-card">
+          <div class="panel-icon">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 8h12M8 2v12" stroke="#34d399" stroke-width="1.5"/><circle cx="8" cy="8" r="6" stroke="#34d399" stroke-width="1.5"/></svg>
+          </div>
+          <h3>URL scoping</h3>
+          <p>Target every site, or restrict a rule to a regex pattern for one origin.</p>
+        </div>
+        <div class="panel-card">
+          <div class="panel-icon">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="3" y="3" width="8" height="8" rx="1.5" stroke="#3b82f6" stroke-width="1.5"/><rect x="5.5" y="5.5" width="8" height="8" rx="1.5" fill="#0a0b11" stroke="#a78bfa" stroke-width="1.5"/></svg>
+          </div>
+          <h3>Profiles</h3>
+          <p>Save a config per environment — staging, prod, mobile UA — and switch instantly.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="cockpit" id="cockpit">
+    <div class="wrap">
+      <div class="cockpit-grid">
+        <div class="cockpit-frame">
+          <div class="cockpit-dots"><span></span><span></span><span></span></div>
+          <img src="assets/screenshot-1.png" alt="HeaderPilot popup showing a rule that sets a message header, scoped to all URLs" />
+        </div>
+        <div class="cockpit-copy">
+          <h2>The whole panel, one popup.</h2>
+          <p>
+            Every rule lives in a single view — no options page, no separate
+            tab. Add a rule, scope it, and it's live before you close the
+            popup.
+          </p>
+          <ul>
+            <li>Request and response headers, side by side</li>
+            <li>Regex scoping with a live "use current tab" shortcut</li>
+            <li>Export / import a full profile as JSON</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="final-cta">
+    <div class="wrap">
+      <h2>Ready for departure?</h2>
+      <p>Free, open source, and it never phones home. Your rules stay on your device.</p>
+      <div class="cta-row">
+        <a class="btn btn-primary" href="https://github.com/arch10/header-pilot/releases/latest">↓ Get the latest build</a>
+        <a class="btn btn-ghost" href="https://github.com/arch10/header-pilot">Read the source</a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap footer-inner">
+    <span class="footer-tag">HeaderPilot — GPL-3.0-or-later</span>
+    <div class="footer-links">
+      <a href="https://github.com/arch10/header-pilot">GitHub</a>
+      <a href="privacy.html">Privacy</a>
+      <a href="https://github.com/arch10/header-pilot/blob/main/LICENSE">License</a>
+      <a href="https://github.com/arch10/header-pilot/releases">Releases</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
