@@ -21,13 +21,13 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           # Fetch full history + a token that can push tags/commits back.
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: 24
           cache: npm
@@ -50,7 +50,7 @@ jobs:
 
       - run: npm run build
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: header-pilot-dist${{ steps.bump.outputs.new_version && format('-{0}', steps.bump.outputs.new_version) || '' }}
           path: dist
