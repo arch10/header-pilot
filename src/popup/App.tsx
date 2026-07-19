@@ -1,3 +1,4 @@
+import type { AppState } from '../types';
 import { ErrorBanner } from './components/ErrorBanner';
 import { ExportImport } from './components/ExportImport';
 import { GlobalSwitch } from './components/GlobalSwitch';
@@ -6,13 +7,12 @@ import { RuleList } from './components/RuleList';
 import { useAppState } from './hooks/useAppState';
 import * as ops from './stateOps';
 
-export default function App() {
-  const { state, update } = useAppState();
+interface AppProps {
+  initialState: AppState;
+}
 
-  if (!state) {
-    return <div className="popup popup-loading">Loading…</div>;
-  }
-
+export default function App({ initialState }: AppProps) {
+  const { state, update } = useAppState(initialState);
   const activeProfile = ops.getActiveProfile(state);
 
   return (
@@ -21,7 +21,7 @@ export default function App() {
         enabled={state.globalEnabled}
         onToggle={() => update(ops.toggleGlobalEnabled)}
       />
-      <div className="popup-body">
+      <div className={`popup-body ${state.globalEnabled ? '' : 'popup-body-disabled'}`}>
         <ErrorBanner
           error={state.lastSyncError}
           onDismiss={() => update((s) => ({ ...s, lastSyncError: null }))}
@@ -41,7 +41,7 @@ export default function App() {
             onAddRule={() => update((s) => ops.addRule(s).state)}
             onUpdateRule={(ruleId, patch) => update((s) => ops.updateRule(s, ruleId, patch))}
             onDeleteRule={(ruleId) => update((s) => ops.deleteRule(s, ruleId))}
-            onAddPattern={(ruleId) => update((s) => ops.addPattern(s, ruleId))}
+            onAddPattern={(ruleId, value) => update((s) => ops.addPattern(s, ruleId, value))}
             onUpdatePattern={(ruleId, index, patch) =>
               update((s) => ops.updatePattern(s, ruleId, index, patch))
             }

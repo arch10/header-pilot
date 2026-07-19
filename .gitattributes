@@ -1,0 +1,8 @@
+# Normalize all text files to LF regardless of contributor platform, so Biome's
+# output (which is always LF) matches what git stores and CI sees. Without this,
+# Windows `core.autocrlf=true` flips files back to CRLF on checkout and every
+# format run shows a phantom "diff" that isn't in git.
+* text=auto eol=lf
+
+# Binary files stay as-is.
+*.png binary

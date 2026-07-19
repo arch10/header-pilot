@@ -1,15 +1,45 @@
 import { useEffect, useState } from 'react';
-import { FiPlus, FiX } from 'react-icons/fi';
+import { FiGlobe, FiPlus, FiX } from 'react-icons/fi';
 import type { UrlPattern } from '../../types';
 
 interface Props {
   patterns: UrlPattern[];
-  onAdd: () => void;
+  onAdd: (value?: string) => void;
   onUpdate: (index: number, patch: Partial<UrlPattern>) => void;
   onDelete: (index: number) => void;
 }
 
+/** Convert a tab URL into a DNR-friendly urlFilter that matches the whole origin. */
+function urlToOriginPattern(rawUrl: string): string | null {
+  try {
+    const u = new URL(rawUrl);
+    if (u.protocol !== 'http:' && u.protocol !== 'https:') return null;
+    return `|${u.protocol}//${u.host}/*`;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Heuristic: does this string look like a regex rather than a DNR urlFilter?
+ * urlFilter only uses `*` `|` `^` as specials; regex-only metacharacters are
+ * a strong signal the user typed a regex.
+ */
+function looksLikeRegex(pattern: string): boolean {
+  return /[\\()[\]{}+?]/.test(pattern);
+}
+
 export function PatternEditor({ patterns, onAdd, onUpdate, onDelete }: Props) {
+  const handleAddCurrentTab = async () => {
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    const pattern = tab?.url ? urlToOriginPattern(tab.url) : null;
+    if (!pattern) {
+      alert("Can't use this tab's URL as a pattern.");
+      return;
+    }
+    onAdd(pattern);
+  };
+
   return (
     <div className="pattern-editor">
       {patterns.length === 0 ? (
@@ -25,9 +55,14 @@ export function PatternEditor({ patterns, onAdd, onUpdate, onDelete }: Props) {
           />
         ))
       )}
-      <button type="button" className="add-pattern-btn" onClick={onAdd}>
-        <FiPlus /> Add pattern
-      </button>
+      <div className="pattern-editor-actions">
+        <button type="button" className="add-pattern-btn" onClick={() => onAdd()}>
+          <FiPlus /> Add pattern
+        </button>
+        <button type="button" className="add-pattern-btn" onClick={handleAddCurrentTab}>
+          <FiGlobe /> Use current tab
+        </button>
+      </div>
     </div>
   );
 }
@@ -43,13 +78,14 @@ function PatternRow({
 }) {
   const [local, setLocal] = useState(pattern.value);
   const [error, setError] = useState<string | null>(null);
+  const detectedRegex = looksLikeRegex(local);
 
   useEffect(() => {
     setLocal(pattern.value);
   }, [pattern.value]);
 
   useEffect(() => {
-    if (!pattern.isRegex || !local) {
+    if (!detectedRegex || !local) {
       setError(null);
       return;
     }
@@ -66,12 +102,13 @@ function PatternRow({
     return () => {
       cancelled = true;
     };
-  }, [local, pattern.isRegex]);
+  }, [local, detectedRegex]);
 
   const commit = (value: string) => {
+    const isRegex = looksLikeRegex(value);
     // Block save on invalid RE2 patterns; the error stays visible until fixed.
-    if (pattern.isRegex && error) return;
-    onUpdate({ value });
+    if (isRegex && error) return;
+    onUpdate({ value, isRegex });
   };
 
   return (
@@ -79,19 +116,11 @@ function PatternRow({
       <div className="pattern-row-fields">
         <input
           className="pattern-input"
-          placeholder={pattern.isRegex ? 'Regex pattern' : 'URL filter (e.g. *://*.example.com/*)'}
+          placeholder="URL filter or regex (e.g. *://*.example.com/*)"
           value={local}
           onChange={(e) => setLocal(e.target.value)}
           onBlur={(e) => commit(e.target.value)}
         />
-        <label className="pattern-regex-toggle">
-          <input
-            type="checkbox"
-            checked={pattern.isRegex}
-            onChange={(e) => onUpdate({ isRegex: e.target.checked })}
-          />
-          Regex
-        </label>
         <button type="button" className="delete-btn" onClick={onDelete} title="Delete pattern">
           <FiX />
         </button>

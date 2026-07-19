@@ -7,7 +7,7 @@ interface Props {
   onAddRule: () => void;
   onUpdateRule: (ruleId: string, patch: Partial<HeaderRule>) => void;
   onDeleteRule: (ruleId: string) => void;
-  onAddPattern: (ruleId: string) => void;
+  onAddPattern: (ruleId: string, value?: string) => void;
   onUpdatePattern: (ruleId: string, index: number, patch: Partial<UrlPattern>) => void;
   onDeletePattern: (ruleId: string, index: number) => void;
 }
@@ -35,7 +35,7 @@ export function RuleList({
             rule={rule}
             onUpdate={(patch) => onUpdateRule(rule.id, patch)}
             onDelete={() => onDeleteRule(rule.id)}
-            onAddPattern={() => onAddPattern(rule.id)}
+            onAddPattern={(value) => onAddPattern(rule.id, value)}
             onUpdatePattern={(index, patch) => onUpdatePattern(rule.id, index, patch)}
             onDeletePattern={(index) => onDeletePattern(rule.id, index)}
           />
