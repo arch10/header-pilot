@@ -1,5 +1,5 @@
-import type { AppState, HeaderRule } from '../types';
 import { setState } from '../storage';
+import type { AppState, HeaderRule } from '../types';
 
 export const ALL_RESOURCE_TYPES: chrome.declarativeNetRequest.ResourceType[] = [
   chrome.declarativeNetRequest.ResourceType.MAIN_FRAME,

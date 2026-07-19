@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import type { AppState } from '../../types';
 import { getState, replaceState, subscribe } from '../../storage';
+import type { AppState } from '../../types';
 
 /**
  * Loads AppState on mount and keeps it in sync with chrome.storage.local.

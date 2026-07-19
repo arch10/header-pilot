@@ -45,6 +45,7 @@ export function ProfileSelector({
       {renamingId ? (
         <input
           className="profile-rename-input"
+          // biome-ignore lint/a11y/noAutofocus: user just clicked "rename"; focus is the expected outcome
           autoFocus
           value={draftName}
           onChange={(e) => setDraftName(e.target.value)}
@@ -79,7 +80,11 @@ export function ProfileSelector({
         <button type="button" title="Add profile" onClick={onAdd}>
           +
         </button>
-        <button type="button" title="Duplicate profile" onClick={() => onDuplicate(activeProfileId)}>
+        <button
+          type="button"
+          title="Duplicate profile"
+          onClick={() => onDuplicate(activeProfileId)}
+        >
           ⧉
         </button>
         <button

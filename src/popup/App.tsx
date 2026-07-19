@@ -1,9 +1,9 @@
-import { useAppState } from './hooks/useAppState';
+import { ErrorBanner } from './components/ErrorBanner';
+import { ExportImport } from './components/ExportImport';
 import { GlobalSwitch } from './components/GlobalSwitch';
 import { ProfileSelector } from './components/ProfileSelector';
 import { RuleList } from './components/RuleList';
-import { ErrorBanner } from './components/ErrorBanner';
-import { ExportImport } from './components/ExportImport';
+import { useAppState } from './hooks/useAppState';
 import * as ops from './stateOps';
 
 export default function App() {
@@ -21,7 +21,10 @@ export default function App() {
         error={state.lastSyncError}
         onDismiss={() => update((s) => ({ ...s, lastSyncError: null }))}
       />
-      <GlobalSwitch enabled={state.globalEnabled} onToggle={() => update(ops.toggleGlobalEnabled)} />
+      <GlobalSwitch
+        enabled={state.globalEnabled}
+        onToggle={() => update(ops.toggleGlobalEnabled)}
+      />
       <ProfileSelector
         profiles={state.profiles}
         activeProfileId={state.activeProfileId}

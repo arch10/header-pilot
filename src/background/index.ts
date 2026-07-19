@@ -1,5 +1,5 @@
+import { ensureSeeded, getState, subscribe } from '../storage';
 import type { AppState } from '../types';
-import { getState, ensureSeeded, subscribe } from '../storage';
 import { computeEffectiveRules, resyncFromStorage } from './syncRules';
 
 const BADGE_ON_COLOR = '#2e7d32';

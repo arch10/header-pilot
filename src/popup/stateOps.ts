@@ -42,11 +42,7 @@ export function addRule(state: AppState): { state: AppState; ruleId: string } {
   };
 }
 
-export function updateRule(
-  state: AppState,
-  ruleId: string,
-  patch: Partial<HeaderRule>,
-): AppState {
+export function updateRule(state: AppState, ruleId: string, patch: Partial<HeaderRule>): AppState {
   return updateRuleWith(state, ruleId, (r) => ({ ...r, ...patch }));
 }
 

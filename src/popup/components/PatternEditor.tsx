@@ -16,6 +16,7 @@ export function PatternEditor({ patterns, onAdd, onUpdate, onDelete }: Props) {
       ) : (
         patterns.map((pattern, index) => (
           <PatternRow
+            // biome-ignore lint/suspicious/noArrayIndexKey: patterns have no stable id in the data model
             key={index}
             pattern={pattern}
             onUpdate={(patch) => onUpdate(index, patch)}

@@ -62,10 +62,7 @@ export async function ensureSeeded(): Promise<void> {
 export function subscribe(
   cb: (newState: AppState, oldState: AppState | undefined) => void,
 ): () => void {
-  const listener = (
-    changes: { [key: string]: chrome.storage.StorageChange },
-    areaName: string,
-  ) => {
+  const listener = (changes: { [key: string]: chrome.storage.StorageChange }, areaName: string) => {
     if (areaName !== 'local') return;
     const change = changes[STORAGE_KEY];
     if (!change) return;
