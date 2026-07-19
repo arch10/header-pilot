@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { FiX } from 'react-icons/fi';
 import type { HeaderRule, UrlPattern } from '../../types';
 import { PatternEditor } from './PatternEditor';
 
@@ -98,7 +99,7 @@ export function RuleRow({
           />
         )}
         <button type="button" className="delete-btn" onClick={onDelete} title="Delete rule">
-          ✕
+          <FiX />
         </button>
       </div>
       <div className="rule-row-scope">

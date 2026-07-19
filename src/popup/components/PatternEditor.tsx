@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { FiPlus, FiX } from 'react-icons/fi';
 import type { UrlPattern } from '../../types';
 
 interface Props {
@@ -25,7 +26,7 @@ export function PatternEditor({ patterns, onAdd, onUpdate, onDelete }: Props) {
         ))
       )}
       <button type="button" className="add-pattern-btn" onClick={onAdd}>
-        + Add pattern
+        <FiPlus /> Add pattern
       </button>
     </div>
   );
@@ -92,7 +93,7 @@ function PatternRow({
           Regex
         </label>
         <button type="button" className="delete-btn" onClick={onDelete} title="Delete pattern">
-          ✕
+          <FiX />
         </button>
       </div>
       {error && <div className="pattern-error">{error}</div>}

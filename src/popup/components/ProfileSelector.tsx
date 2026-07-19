@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { FiCopy, FiEdit2, FiPlus, FiTrash2 } from 'react-icons/fi';
 import type { Profile } from '../../types';
 
 interface Props {
@@ -75,17 +76,17 @@ export function ProfileSelector({
           onClick={startRename}
           disabled={renamingId !== null}
         >
-          ✎
+          <FiEdit2 />
         </button>
         <button type="button" title="Add profile" onClick={onAdd}>
-          +
+          <FiPlus />
         </button>
         <button
           type="button"
           title="Duplicate profile"
           onClick={() => onDuplicate(activeProfileId)}
         >
-          ⧉
+          <FiCopy />
         </button>
         <button
           type="button"
@@ -97,7 +98,7 @@ export function ProfileSelector({
             }
           }}
         >
-          🗑
+          <FiTrash2 />
         </button>
       </div>
     </div>

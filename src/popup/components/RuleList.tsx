@@ -1,3 +1,4 @@
+import { FiPlus } from 'react-icons/fi';
 import type { HeaderRule, UrlPattern } from '../../types';
 import { RuleRow } from './RuleRow';
 
@@ -38,7 +39,7 @@ export function RuleList({
         ))
       )}
       <button type="button" className="add-rule-btn" onClick={onAddRule}>
-        + Add rule
+        <FiPlus /> Add rule
       </button>
     </div>
   );

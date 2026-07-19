@@ -71,11 +71,13 @@ body {
 }
 
 .error-banner button {
+  display: inline-flex;
+  align-items: center;
   background: none;
   border: none;
   color: inherit;
   cursor: pointer;
-  font-size: 12px;
+  font-size: 14px;
 }
 
 .global-switch {
@@ -156,6 +158,9 @@ body {
 }
 
 .profile-actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   border: 1px solid var(--border);
   background: var(--bg-subtle);
   color: var(--text);
@@ -163,7 +168,7 @@ body {
   width: 26px;
   height: 26px;
   cursor: pointer;
-  font-size: 13px;
+  font-size: 14px;
 }
 
 .profile-actions button:disabled {
@@ -238,11 +243,13 @@ body {
 }
 
 .delete-btn {
+  display: inline-flex;
+  align-items: center;
   border: none;
   background: none;
   color: var(--danger);
   cursor: pointer;
-  font-size: 13px;
+  font-size: 14px;
   padding: 2px 4px;
 }
 
@@ -306,6 +313,10 @@ body {
 
 .add-pattern-btn,
 .add-rule-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
   align-self: flex-start;
   border: 1px dashed var(--border);
   background: none;
@@ -318,7 +329,6 @@ body {
 
 .add-rule-btn {
   align-self: stretch;
-  text-align: center;
 }
 
 .export-import {
