@@ -52,11 +52,13 @@ function buildDnrRulesForHeaderRule(
   const conditions: chrome.declarativeNetRequest.RuleCondition[] =
     rule.scope === 'all'
       ? [{ urlFilter: '*', ...buildConditionBase() }]
-      : (rule.patterns ?? []).map((pattern) =>
-          pattern.isRegex
-            ? { regexFilter: pattern.value, ...buildConditionBase() }
-            : { urlFilter: pattern.value, ...buildConditionBase() },
-        );
+      : (rule.patterns ?? [])
+          .filter((pattern) => pattern.value !== '')
+          .map((pattern) =>
+            pattern.isRegex
+              ? { regexFilter: pattern.value, ...buildConditionBase() }
+              : { urlFilter: pattern.value, ...buildConditionBase() },
+          );
 
   let id = startId;
   const dnrRules: chrome.declarativeNetRequest.Rule[] = conditions.map((condition) => ({

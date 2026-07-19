@@ -1,4 +1,4 @@
-import { FiPlus } from 'react-icons/fi';
+import { FiInbox, FiPlus } from 'react-icons/fi';
 import type { HeaderRule, UrlPattern } from '../../types';
 import { RuleRow } from './RuleRow';
 
@@ -24,7 +24,10 @@ export function RuleList({
   return (
     <div className="rule-list">
       {rules.length === 0 ? (
-        <div className="empty-state">No rules yet — Add one</div>
+        <div className="empty-state">
+          <FiInbox className="empty-state-icon" />
+          <span>No rules yet — add one to get started</span>
+        </div>
       ) : (
         rules.map((rule) => (
           <RuleRow

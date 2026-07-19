@@ -1,4 +1,5 @@
 import { useRef } from 'react';
+import { FiDownload, FiUpload } from 'react-icons/fi';
 import type { Profile } from '../../types';
 
 interface Props {
@@ -50,10 +51,10 @@ export function ExportImport({ profiles, onImport }: Props) {
   return (
     <div className="export-import">
       <button type="button" onClick={handleExport}>
-        Export profiles
+        <FiDownload /> Export
       </button>
       <button type="button" onClick={handleImportClick}>
-        Import profiles
+        <FiUpload /> Import
       </button>
       <input
         ref={fileInputRef}

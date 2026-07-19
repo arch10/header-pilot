@@ -1,16 +1,37 @@
 :root {
   color-scheme: light dark;
   --bg: #ffffff;
-  --bg-subtle: #f5f5f7;
-  --text: #1c1c1e;
-  --text-muted: #6b6b70;
-  --border: #dcdce0;
-  --accent: #2e7d32;
-  --accent-off: #9aa0a6;
-  --danger: #c62828;
-  --danger-bg: #fdecea;
+  --bg-elevated: #ffffff;
+  --bg-subtle: #f6f7fb;
+  --bg-inset: #eef0f7;
+  --border: #e4e6ef;
+  --border-strong: #d3d6e3;
+  --text: #16171d;
+  --text-muted: #6b7080;
+  --text-faint: #9aa0af;
+
+  --accent: #6d5ef8;
+  --accent-2: #9333ea;
+  --accent-soft: rgba(109, 94, 248, 0.12);
+  --accent-contrast: #ffffff;
+
+  --req: #2563eb;
+  --req-soft: rgba(37, 99, 235, 0.12);
+  --res: #9333ea;
+  --res-soft: rgba(147, 51, 234, 0.12);
+
+  --danger: #dc2626;
+  --danger-soft: rgba(220, 38, 38, 0.1);
+
+  --radius-sm: 6px;
+  --radius: 10px;
+  --radius-lg: 14px;
+  --shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.06);
+  --shadow-md: 0 6px 16px rgba(16, 24, 40, 0.1);
+  --ease: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+
   font:
-    13px / 1.4 -apple-system,
+    13px / 1.45 -apple-system,
     BlinkMacSystemFont,
     "Segoe UI",
     Roboto,
@@ -19,15 +40,31 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #1e1f22;
-    --bg-subtle: #28292c;
-    --text: #f0f0f2;
-    --text-muted: #a0a0a6;
-    --border: #3a3b3e;
-    --accent: #66bb6a;
-    --accent-off: #7a7d85;
-    --danger: #ef5350;
-    --danger-bg: #3a1f1f;
+    --bg: #17181c;
+    --bg-elevated: #1e1f25;
+    --bg-subtle: #1a1b20;
+    --bg-inset: #24252c;
+    --border: #2c2d36;
+    --border-strong: #3a3c47;
+    --text: #f1f1f4;
+    --text-muted: #a2a5b3;
+    --text-faint: #75798a;
+
+    --accent: #8b7bff;
+    --accent-2: #c084fc;
+    --accent-soft: rgba(139, 123, 255, 0.18);
+    --accent-contrast: #ffffff;
+
+    --req: #60a5fa;
+    --req-soft: rgba(96, 165, 250, 0.16);
+    --res: #c084fc;
+    --res-soft: rgba(192, 132, 252, 0.16);
+
+    --danger: #f87171;
+    --danger-soft: rgba(248, 113, 113, 0.15);
+
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 8px 20px rgba(0, 0, 0, 0.45);
   }
 }
 
@@ -41,57 +78,105 @@ body {
   color: var(--text);
 }
 
+button,
+input,
+select {
+  font-family: inherit;
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+  accent-color: var(--accent);
+}
+
 .popup {
   width: 380px;
-  max-height: 560px;
+  max-height: 580px;
   overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
+}
+
+.popup::-webkit-scrollbar {
+  width: 8px;
+}
+
+.popup::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 999px;
+}
+
+.popup-loading {
+  padding: 32px;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.popup-body {
   padding: 12px;
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
-.popup-loading {
-  padding: 24px;
-  text-align: center;
-  color: var(--text-muted);
-}
+/* ---------- Topbar / brand ---------- */
 
-.error-banner {
+.topbar {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  gap: 8px;
-  background: var(--danger-bg);
-  color: var(--danger);
-  border: 1px solid var(--danger);
-  border-radius: 6px;
-  padding: 6px 10px;
-  font-size: 12px;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 14px 16px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  color: var(--accent-contrast);
 }
 
-.error-banner button {
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.brand-icon {
   display: inline-flex;
   align-items: center;
-  background: none;
-  border: none;
-  color: inherit;
-  cursor: pointer;
-  font-size: 14px;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(4px);
+  font-size: 16px;
 }
 
-.global-switch {
+.brand-text {
   display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 4px;
+  flex-direction: column;
+  line-height: 1.25;
+  min-width: 0;
+}
+
+.brand-title {
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: -0.1px;
+}
+
+.brand-status {
+  font-size: 11px;
+  font-weight: 500;
+  opacity: 0.85;
 }
 
 .switch {
   position: relative;
   display: inline-block;
-  width: 34px;
-  height: 20px;
+  width: 38px;
+  height: 22px;
   flex-shrink: 0;
 }
 
@@ -104,10 +189,11 @@ body {
 .switch-track {
   position: absolute;
   inset: 0;
-  background: var(--accent-off);
+  background: rgba(255, 255, 255, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.35);
   border-radius: 999px;
   cursor: pointer;
-  transition: background 0.15s;
+  transition: background var(--ease);
 }
 
 .switch-track::before {
@@ -117,22 +203,61 @@ body {
   width: 16px;
   left: 2px;
   top: 2px;
-  background: white;
+  background: #ffffff;
   border-radius: 50%;
-  transition: transform 0.15s;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+  transition: transform var(--ease);
 }
 
 .switch input:checked + .switch-track {
-  background: var(--accent);
+  background: rgba(255, 255, 255, 0.95);
 }
 
 .switch input:checked + .switch-track::before {
-  transform: translateX(14px);
+  transform: translateX(16px);
+  background: var(--accent);
 }
 
-.global-switch-label {
-  font-weight: 600;
+/* ---------- Error banner ---------- */
+
+.error-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--danger-soft);
+  color: var(--danger);
+  border: 1px solid var(--danger);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  font-size: 12px;
 }
+
+.error-banner-icon {
+  flex-shrink: 0;
+  font-size: 14px;
+}
+
+.error-banner-text {
+  flex: 1;
+}
+
+.error-banner button {
+  display: inline-flex;
+  align-items: center;
+  background: none;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  font-size: 14px;
+  opacity: 0.8;
+  transition: opacity var(--ease);
+}
+
+.error-banner button:hover {
+  opacity: 1;
+}
+
+/* ---------- Profile selector ---------- */
 
 .profile-selector {
   display: flex;
@@ -140,21 +265,53 @@ body {
   gap: 6px;
 }
 
-.profile-select,
-.profile-rename-input {
+.profile-select-wrap {
+  position: relative;
   flex: 1;
   min-width: 0;
-  padding: 5px 6px;
+  display: flex;
+  align-items: center;
+}
+
+.profile-select-icon {
+  position: absolute;
+  left: 9px;
+  color: var(--text-faint);
+  font-size: 13px;
+  pointer-events: none;
+}
+
+.profile-select,
+.profile-rename-input {
+  width: 100%;
+  min-width: 0;
+  padding: 6px 8px;
   border: 1px solid var(--border);
-  border-radius: 6px;
-  background: var(--bg);
+  border-radius: var(--radius-sm);
+  background: var(--bg-elevated);
   color: var(--text);
   font-size: 13px;
+  font-weight: 500;
+  transition:
+    border-color var(--ease),
+    box-shadow var(--ease);
+}
+
+.profile-select {
+  padding-left: 28px;
+  cursor: pointer;
+}
+
+.profile-select:focus,
+.profile-rename-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
 }
 
 .profile-actions {
   display: flex;
-  gap: 2px;
+  gap: 4px;
 }
 
 .profile-actions button {
@@ -162,19 +319,37 @@ body {
   align-items: center;
   justify-content: center;
   border: 1px solid var(--border);
-  background: var(--bg-subtle);
-  color: var(--text);
-  border-radius: 6px;
-  width: 26px;
-  height: 26px;
+  background: var(--bg-elevated);
+  color: var(--text-muted);
+  border-radius: var(--radius-sm);
+  width: 28px;
+  height: 28px;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 13px;
+  transition:
+    background var(--ease),
+    color var(--ease),
+    border-color var(--ease);
+}
+
+.profile-actions button:hover:not(:disabled) {
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.profile-actions button.danger:hover:not(:disabled) {
+  background: var(--danger-soft);
+  color: var(--danger);
+  border-color: var(--danger);
 }
 
 .profile-actions button:disabled {
-  opacity: 0.4;
+  opacity: 0.35;
   cursor: not-allowed;
 }
+
+/* ---------- Rule list ---------- */
 
 .rule-list {
   display: flex;
@@ -183,19 +358,39 @@ body {
 }
 
 .empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
   text-align: center;
   color: var(--text-muted);
-  padding: 20px 0;
+  padding: 28px 12px;
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--bg-subtle);
+}
+
+.empty-state-icon {
+  font-size: 22px;
+  color: var(--text-faint);
 }
 
 .rule-row {
   border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 8px;
+  border-radius: var(--radius);
+  padding: 10px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  background: var(--bg-subtle);
+  gap: 8px;
+  background: var(--bg-elevated);
+  box-shadow: var(--shadow-sm);
+  transition:
+    box-shadow var(--ease),
+    opacity var(--ease);
+}
+
+.rule-row:hover {
+  box-shadow: var(--shadow-md);
 }
 
 .rule-row-disabled {
@@ -205,78 +400,142 @@ body {
 .rule-row-main {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
   flex-wrap: wrap;
 }
 
 .target-badge {
-  border: 1px solid var(--border);
-  background: var(--bg);
-  color: var(--text);
-  border-radius: 4px;
-  padding: 3px 6px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  padding: 4px 6px;
   font-size: 10px;
   font-weight: 700;
+  letter-spacing: 0.2px;
   cursor: pointer;
-  width: 34px;
+  width: 36px;
+  transition:
+    background var(--ease),
+    color var(--ease);
+}
+
+.target-badge-request {
+  background: var(--req-soft);
+  color: var(--req);
+}
+
+.target-badge-response {
+  background: var(--res-soft);
+  color: var(--res);
 }
 
 .operation-select {
   border: 1px solid var(--border);
-  border-radius: 4px;
-  background: var(--bg);
+  border-radius: var(--radius-sm);
+  background: var(--bg-elevated);
   color: var(--text);
-  padding: 4px;
+  padding: 5px 4px;
   font-size: 12px;
+  cursor: pointer;
+  transition: border-color var(--ease);
 }
 
 .header-name-input,
-.header-value-input {
+.header-value-input,
+.pattern-input {
   flex: 1;
   min-width: 70px;
   border: 1px solid var(--border);
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   background: var(--bg);
   color: var(--text);
-  padding: 4px 6px;
+  padding: 5px 8px;
   font-size: 12px;
+  transition:
+    border-color var(--ease),
+    box-shadow var(--ease);
+}
+
+.operation-select:focus,
+.header-name-input:focus,
+.header-value-input:focus,
+.pattern-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
 }
 
 .delete-btn {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   border: none;
   background: none;
-  color: var(--danger);
+  color: var(--text-faint);
   cursor: pointer;
   font-size: 14px;
-  padding: 2px 4px;
+  width: 24px;
+  height: 24px;
+  border-radius: var(--radius-sm);
+  transition:
+    background var(--ease),
+    color var(--ease);
 }
 
-.rule-row-scope {
-  display: flex;
-  gap: 12px;
-  font-size: 12px;
-  color: var(--text-muted);
+.delete-btn:hover {
+  background: var(--danger-soft);
+  color: var(--danger);
 }
 
-.rule-row-scope label {
-  display: flex;
+/* ---------- Segmented scope toggle ---------- */
+
+.scope-toggle {
+  display: inline-flex;
+  align-self: flex-start;
+  background: var(--bg-inset);
+  border-radius: 999px;
+  padding: 2px;
+  gap: 2px;
+}
+
+.scope-chip {
+  position: relative;
+  display: inline-flex;
   align-items: center;
-  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-muted);
   cursor: pointer;
+  transition:
+    background var(--ease),
+    color var(--ease);
 }
+
+.scope-chip input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.scope-chip.active {
+  background: var(--accent);
+  color: var(--accent-contrast);
+}
+
+/* ---------- Pattern editor ---------- */
 
 .pattern-editor {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  padding-top: 4px;
+  padding-top: 6px;
   border-top: 1px dashed var(--border);
 }
 
 .pattern-empty {
-  color: var(--text-muted);
+  color: var(--text-faint);
   font-size: 11px;
 }
 
@@ -286,17 +545,6 @@ body {
   gap: 6px;
 }
 
-.pattern-input {
-  flex: 1;
-  min-width: 0;
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  background: var(--bg);
-  color: var(--text);
-  padding: 4px 6px;
-  font-size: 12px;
-}
-
 .pattern-regex-toggle {
   display: flex;
   align-items: center;
@@ -304,12 +552,15 @@ body {
   font-size: 11px;
   color: var(--text-muted);
   white-space: nowrap;
+  cursor: pointer;
 }
 
 .pattern-error {
   color: var(--danger);
   font-size: 11px;
 }
+
+/* ---------- Add buttons ---------- */
 
 .add-pattern-btn,
 .add-rule-btn {
@@ -318,33 +569,62 @@ body {
   justify-content: center;
   gap: 4px;
   align-self: flex-start;
-  border: 1px dashed var(--border);
+  border: 1px dashed var(--border-strong);
   background: none;
-  color: var(--text);
-  border-radius: 6px;
-  padding: 5px 10px;
+  color: var(--text-muted);
+  border-radius: var(--radius-sm);
+  padding: 6px 12px;
   font-size: 12px;
+  font-weight: 500;
   cursor: pointer;
+  transition:
+    background var(--ease),
+    color var(--ease),
+    border-color var(--ease);
+}
+
+.add-pattern-btn:hover,
+.add-rule-btn:hover {
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-color: var(--accent);
 }
 
 .add-rule-btn {
   align-self: stretch;
 }
 
+/* ---------- Export / import ---------- */
+
 .export-import {
   display: flex;
-  gap: 6px;
+  gap: 8px;
   border-top: 1px solid var(--border);
-  padding-top: 8px;
+  padding-top: 10px;
 }
 
 .export-import button {
   flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
   border: 1px solid var(--border);
-  background: var(--bg-subtle);
-  color: var(--text);
-  border-radius: 6px;
-  padding: 6px;
+  background: var(--bg-elevated);
+  color: var(--text-muted);
+  border-radius: var(--radius-sm);
+  padding: 7px;
   font-size: 12px;
+  font-weight: 500;
   cursor: pointer;
+  transition:
+    background var(--ease),
+    color var(--ease),
+    border-color var(--ease);
+}
+
+.export-import button:hover {
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-color: var(--accent);
 }

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { FiCopy, FiEdit2, FiPlus, FiTrash2 } from 'react-icons/fi';
+import { FiCopy, FiEdit2, FiLayers, FiPlus, FiTrash2 } from 'react-icons/fi';
 import type { Profile } from '../../types';
 
 interface Props {
@@ -57,17 +57,20 @@ export function ProfileSelector({
           onBlur={commitRename}
         />
       ) : (
-        <select
-          className="profile-select"
-          value={activeProfileId}
-          onChange={(e) => onSwitch(e.target.value)}
-        >
-          {profiles.map((p) => (
-            <option key={p.id} value={p.id}>
-              {p.name}
-            </option>
-          ))}
-        </select>
+        <div className="profile-select-wrap">
+          <FiLayers className="profile-select-icon" />
+          <select
+            className="profile-select"
+            value={activeProfileId}
+            onChange={(e) => onSwitch(e.target.value)}
+          >
+            {profiles.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.name}
+              </option>
+            ))}
+          </select>
+        </div>
       )}
       <div className="profile-actions">
         <button
@@ -90,6 +93,7 @@ export function ProfileSelector({
         </button>
         <button
           type="button"
+          className="danger"
           title="Delete profile"
           disabled={profiles.length <= 1}
           onClick={() => {

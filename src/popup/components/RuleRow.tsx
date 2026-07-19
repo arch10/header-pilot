@@ -67,7 +67,7 @@ export function RuleRow({
         />
         <button
           type="button"
-          className="target-badge"
+          className={`target-badge target-badge-${rule.target}`}
           onClick={() => onUpdate({ target: rule.target === 'request' ? 'response' : 'request' })}
           title="Toggle request/response"
         >
@@ -102,8 +102,8 @@ export function RuleRow({
           <FiX />
         </button>
       </div>
-      <div className="rule-row-scope">
-        <label>
+      <div className="scope-toggle">
+        <label className={`scope-chip ${rule.scope === 'all' ? 'active' : ''}`}>
           <input
             type="radio"
             name={`scope-${rule.id}`}
@@ -112,7 +112,7 @@ export function RuleRow({
           />
           All URLs
         </label>
-        <label>
+        <label className={`scope-chip ${rule.scope === 'patterns' ? 'active' : ''}`}>
           <input
             type="radio"
             name={`scope-${rule.id}`}
