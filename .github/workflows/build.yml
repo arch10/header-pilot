@@ -2,12 +2,30 @@ name: Build
 
 on:
   workflow_dispatch:
+    inputs:
+      version_bump:
+        description: "Version bump before build"
+        required: true
+        default: none
+        type: choice
+        options:
+          - none
+          - patch
+          - minor
+          - major
+
+permissions:
+  contents: write
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Fetch full history + a token that can push tags/commits back.
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - uses: actions/setup-node@v4
         with:
@@ -16,9 +34,23 @@ jobs:
 
       - run: npm ci
 
+      - name: Bump version
+        if: ${{ inputs.version_bump != 'none' }}
+        id: bump
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          NEW_VERSION=$(npm version ${{ inputs.version_bump }} --no-git-tag-version)
+          echo "new_version=${NEW_VERSION}" >> "$GITHUB_OUTPUT"
+          git add package.json package-lock.json
+          git commit -m "Bump version to ${NEW_VERSION}"
+          git tag "${NEW_VERSION}"
+          git push origin HEAD:${{ github.ref_name }}
+          git push origin "${NEW_VERSION}"
+
       - run: npm run build
 
       - uses: actions/upload-artifact@v4
         with:
-          name: header-pilot-dist
+          name: header-pilot-dist${{ steps.bump.outputs.new_version && format('-{0}', steps.bump.outputs.new_version) || '' }}
           path: dist
